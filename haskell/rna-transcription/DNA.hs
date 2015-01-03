@@ -1,12 +1,23 @@
 module DNA where
 
-import Data.Maybe
+import Control.Error.Util
 
-toRNA :: [Char] -> [Char]
-toRNA = fromJust . sequence . map convertDna
-        where convertDna :: Char -> Maybe Char
-              convertDna = (flip lookup) dnaToRnaTable
+type Nucleotide = Char
+type Transcriber = (Nucleotide -> Either String Nucleotide)
+type RNA = [Nucleotide]
+type DNA = [Nucleotide]
 
-              dnaToRnaTable :: [(Char, Char)]
-              dnaToRnaTable = zip ['G', 'C', 'T', 'A']
-                                  ['C', 'G', 'A', 'U']
+dnaList = ['G', 'C', 'T', 'A']
+rnaList = ['C', 'G', 'A', 'U']
+
+toRNA :: DNA -> RNA
+toRNA = either error id
+      . transcribeWith dnaToRna
+
+transcribeWith :: Transcriber -> [Nucleotide] -> Either String [Nucleotide]
+transcribeWith = mapM
+
+dnaToRna :: Transcriber
+dnaToRna c = note ("Invalid DNA elem: " ++ show c)
+           $ flip lookup dnaToRnaTable c
+    where dnaToRnaTable = zip dnaList rnaList
