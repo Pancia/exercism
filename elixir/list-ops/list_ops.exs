@@ -8,37 +8,61 @@ defmodule ListOps do
 
   @spec count(list) :: non_neg_integer
   def count(l) do
-
+    case l do
+      []     -> 0
+      [_|xs] -> 1 + ListOps.count(xs)
+    end
   end
 
   @spec reverse(list) :: list
   def reverse(l) do
-
+    ListOps.reduce(l, [], &([&1|&2]))
   end
 
   @spec map(list, (any -> any)) :: list
   def map(l, f) do
-
+    case l do
+      [] -> []
+      [x|xs] -> [f.(x) | ListOps.map(xs, f)]
+    end
   end
 
   @spec filter(list, (any -> as_boolean(term))) :: list
-  def filter(l, f) do
-
+  def filter(l, p) do
+    case l do
+      [] -> []
+      [x|xs]
+        -> case p.(x) do
+          true -> [x | filter(xs, p)]
+          false -> filter(xs, p)
+        end
+    end
   end
 
   @type acc :: any
   @spec reduce(list, acc, ((any, acc) -> acc)) :: acc
   def reduce(l, acc, f) do
-
+    case l do
+      [] -> acc
+      [x|xs] -> ListOps.reduce(xs, f.(x, acc), f)
+    end
   end
 
   @spec append(list, list) :: list
   def append(a, b) do
-
+    [a|b]
+      |> List.flatten()
+   #case a do
+   #  []     -> b
+   #  [a|as] -> [a|ListOps.append(as, b)]
+   #end
   end
 
   @spec concat([[any]]) :: [any]
   def concat(ll) do
-
+    #ListOps.reduce(ll, [], &(ListOps.append(&2, &1)))
+    fun = &[&1|&2]
+    ListOps.reduce(ll, [], &ListOps.reduce(&1, &2, fun))
+      |> ListOps.reverse
   end
 end
