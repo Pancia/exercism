@@ -48,19 +48,21 @@ defmodule ListOps do
     end
   end
 
+  def flatten_first(list) do
+    case list do
+      []     -> []
+      [x|xs] -> ListOps.concat([x, xs])
+    end
+  end
+
   @spec append(list, list) :: list
   def append(a, b) do
     [a|b]
-      |> List.flatten()
-   #case a do
-   #  []     -> b
-   #  [a|as] -> [a|ListOps.append(as, b)]
-   #end
+      |> ListOps.flatten_first()
   end
 
   @spec concat([[any]]) :: [any]
   def concat(ll) do
-    #ListOps.reduce(ll, [], &(ListOps.append(&2, &1)))
     fun = &[&1|&2]
     ListOps.reduce(ll, [], &ListOps.reduce(&1, &2, fun))
       |> ListOps.reverse
